@@ -2,7 +2,7 @@
 
 ## Socket connections
 
-### `create_game(player_name)` event
+### `create_game(player_name, number_of_players)` event
 
 Example:
 

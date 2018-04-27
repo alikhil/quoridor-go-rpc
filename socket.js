@@ -4,3 +4,7 @@ function init(socket) {
     socket.on("apply_step", console.log)
     socket.on("show_error", console.error)
 }
+
+socket = io()
+
+init(socket)

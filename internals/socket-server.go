@@ -24,9 +24,11 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 
 		log.Println("SOCKET: Connection with frontend is established")
 
-		so.On("create_game", func(userName string) {
+		so.On("create_game", func(userName string, numberOfPlayers int) {
 			// TODO: think about repeating attempts to create game and connecting after creating own game etc
-			log.Printf("SOCKET: create_game(%s) command recived", userName)
+			// TODO: default value for number of players
+			log.Printf("SOCKET: create_game(%s, %v) command recived", userName, numberOfPlayers)
+			game.numberOfPlayers = numberOfPlayers
 			game.StartSelfhostedGame()
 
 			var selfHostedUser = Player{Name: &userName, Endpoint: GetIPAddress() + GetRPCPort()}
@@ -58,6 +60,9 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 				log.Printf("SOCKET: failed to connect to game")
 			}
 			log.Printf("SOCKET: rpc call result was: %v", *res)
+			if !*res {
+				log.Printf("SOCKET: cannot connect to the game; room is overload")
+			}
 		})
 
 		so.On("share_step", func(stepData StepData) {
