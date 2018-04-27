@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<style type="text/css">
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<head>
+</head>
+<script src="pixi.min.js"></script>
+
+<body>
+    <h3>Authors: Alik Khilazhev, Ivan Panchenko</h3>
+    <div id='menu'>
+        You have 2 options.
+        <ol>
+            <li>Start new game:
+                <div>
+                    Your name:
+                    <br>
+                    <input type="text" name="firstname">
+                    <br>
+                    <button type="button" onclick="createNewGame(this)">Start game</button>
+                </div>
+            </li>
+            <li>Connect to existing game:
+                <div>
+                    Your name:
+                    <br>
+                    <input type="text" name="firstname">
+                    <br> Server address:
+                    <br>
+                    <input type="text" name="firstname">
+                    <br>
+                    <button type="button" onclick="connectToGame(this);">Connect</button>
+                </div>
+            </li>
+        </ol>
+    </div>
+    <script src="quoridor.js"></script>
+</body>
+
+</html>
