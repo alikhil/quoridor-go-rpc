@@ -16,9 +16,9 @@ const tcpPort = 5001  // for rpc over tcp
 func main() {
 	// log.Println(inter.GetIPAddress())
 	// return
-	game := inter.GGame{&inter.RealGame{}}
+	game := inter.CreateGame()
 
-	server, err := inter.CreateSocketServer(&game)
+	server, err := inter.CreateSocketServer(game)
 	if err != nil {
 		log.Fatal(err)
 	}

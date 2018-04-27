@@ -1,6 +1,7 @@
 package internals
 
 import (
+	"fmt"
 	"github.com/googollee/go-socket.io"
 	"log"
 )
@@ -38,7 +39,11 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 				name = "unnamed user"
 			}
 			log.Printf("SOCKET: connect_to_game(%s, %s) command recieved", ip, name)
-
+			if ip == GetEndpoint() {
+				log.Printf("can not connect to own game")
+				so.Emit("show_error", "Can not connect to own game. You already in game")
+				return
+			}
 			created := make(chan bool, 1)
 			if !game.rpcRunning {
 				go runRPCServer(game.RealGame, created)
@@ -57,8 +62,10 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 
 		so.On("share_step", func(stepData StepData) {
 			log.Printf("SOCKET: share step(%v) command recieved", stepData)
-			if stepData.step != game.step {
-				log.Printf("SOCKET: recived invalid step(%v); game step is %v", stepData.step, game.step)
+			if stepData.Step != game.step {
+				log.Printf("SOCKET: recived invalid step(%v); game step is %v", stepData.Step, game.step)
+				so.Emit("show_error", fmt.Sprintf("Recived old step %v where cur game step is %v", stepData.Step, game.step))
+				return
 			}
 			game.step++
 			err := game.ShareStep(stepData)
@@ -71,6 +78,10 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 			log.Println("SOCKET: connection with frontend is lost")
 
 		})
+		// TODO: ask status on page reload? to continue? we can ask history of steps
+		// so.On("status", func() {
+		// 	so.Emit("show_status", )
+		// })
 	})
 	server.On("error", func(so socketio.Socket, err error) {
 		log.Println("SOCKET: error:", err)

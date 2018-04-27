@@ -29,7 +29,12 @@ func (rgame *RemoteGame) AddUser(user *Player, ok *bool) error {
 }
 
 func (rgame *RemoteGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
+	// rgame.client.
 	return rgame.client.Call("RemoteGame.SetupGame", startArgs, reply)
+}
+
+func (rgame *RemoteGame) Ping(value, reply *int) error {
+	return rgame.client.Call("RemoteGame.Ping", value, reply)
 }
 
 func runRPCServer(game *RealGame, created chan<- bool) {
