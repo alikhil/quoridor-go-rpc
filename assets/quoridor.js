@@ -526,7 +526,7 @@ class Game {
     set stage(value) {
         this.s == value;
         if (value == 'moveDone') {
-            if (turnNumber == total_players-1) {
+            if (turnNumber == total_players - 1) {
                 turnNumber = 0;
             } else {
                 turnNumber += 1;
@@ -598,28 +598,36 @@ class Client {
     }
 
     initPawns() {
-        if (this.players_n == 2){
+        if (this.players_n == 2) {
             pawns.push(new Pawn({ col: 4, row: 0 }, 0, null, 8));
             pawns.push(new Pawn({ col: 4, row: 8 }, 1, null, 0));
             walls_left = [10, 10];
-        } else if (this.players_n == 3){
+        } else if (this.players_n == 3) {
             pawns.push(new Pawn({ col: 4, row: 0 }, 1, null, 8));
             pawns.push(new Pawn({ col: 8, row: 4 }, 2, 0, null));
             pawns.push(new Pawn({ col: 4, row: 8 }, 3, null, 0));
-            walls_left = [7,7,7];
-        } else if (this.players_n == 4){
+            walls_left = [7, 7, 7];
+        } else if (this.players_n == 4) {
             pawns.push(new Pawn({ col: 0, row: 4 }, 0, 8, null));
             pawns.push(new Pawn({ col: 4, row: 0 }, 1, null, 8));
             pawns.push(new Pawn({ col: 8, row: 4 }, 2, 0, null));
             pawns.push(new Pawn({ col: 4, row: 8 }, 3, null, 0));
-            walls_left = [5,5,5,5];
+            walls_left = [5, 5, 5, 5];
         }
     }
 }
 
 
 function createNewGame(form) {
-    total_players = 3;
+
+    if (document.getElementById('rb2').checked) {
+        total_players = 2;
+    } else if (document.getElementById('rb3').checked) {
+        total_players = 3;
+    } else if (document.getElementById('rb4').checked) {
+        total_players = 4;
+    }
+
     var client = new Client(0);
     document.getElementById("menu").style.display = "none";
 
@@ -628,4 +636,3 @@ function connectToGame(form) {
     alert('connect to the game');
 }
 
-const socket = io('http://localhost');
