@@ -19,6 +19,10 @@ func GetRemoteGameClient(serverAddress string) Game {
 	return &RemoteGame{client}
 }
 
+func (rgame *RemoteGame) ApplyStep(step *StepArgs, ok *bool) error {
+	return rgame.client.Call("RemoteGame.ApplyStep", step, ok)
+}
+
 func (rgame *RemoteGame) AddUser(user *Player, ok *bool) error {
 	err := rgame.client.Call("RemoteGame.AddUser", user, ok)
 	return err
@@ -28,7 +32,7 @@ func (rgame *RemoteGame) SetupGame(startArgs *GameStartArgs, reply *bool) error 
 	return rgame.client.Call("RemoteGame.SetupGame", startArgs, reply)
 }
 
-func runRPCServer(game *RealGame) {
+func runRPCServer(game *RealGame, created chan<- bool) {
 
 	server := rpc.NewServer()
 	server.RegisterName("RemoteGame", game)
@@ -37,16 +41,19 @@ func runRPCServer(game *RealGame) {
 
 	port := GetRPCPort()
 
-	for true {
+	game.rpcStopped = false
+	game.rpcRunning = true
+
+	for game.rpcRunning {
 		l, e := net.Listen("tcp", port)
 		//fmt.Println(l,e)
 		if e != nil {
 			log.Fatal("RPC: there was an error in listening for http connection on port "+port, e)
+			created <- false
 			return
-		} else {
-			log.Println("RPC: Started listening for new http connections.")
 		}
-
+		log.Println("RPC: Started listening for new http connections.")
+		created <- true
 		err := http.Serve(l, nil)
 		if err != nil {
 			log.Println("RPC: Error serving connection.")
@@ -55,4 +62,6 @@ func runRPCServer(game *RealGame) {
 
 		log.Println("RPC: Serving new connection.")
 	}
+
+	game.rpcStopped = true
 }

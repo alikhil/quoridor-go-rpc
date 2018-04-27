@@ -17,6 +17,7 @@ type Player struct {
 type Game interface {
 	AddUser(newUser *Player, ok *bool) error
 	SetupGame(startArgs *GameStartArgs, ok *bool) error
+	ApplyStep(step *StepArgs, ok *bool) error
 }
 
 type GameStartArgs struct {
@@ -30,6 +31,8 @@ type RealGame struct {
 	players       []Player
 	step          int
 	socket        *socketio.Socket
+	rpcRunning    bool
+	rpcStopped    bool
 }
 
 type GGame struct {
@@ -41,15 +44,46 @@ type ConnectArgs struct {
 	name     string
 }
 
-func (game *GGame) StartSelfhostedGame() {
-	game.selfHosted = true
-	go runRPCServer(game.RealGame)
+type StepData struct {
+	step int
+	data string
 }
 
-func EmitMakeStep(game *RealGame) {
-	socket := *game.socket
+type StepArgs struct {
+	Data StepData
+}
+
+func (game *GGame) StartSelfhostedGame() {
+	game.players = []Player{}
+	game.selfHosted = true
+	if game.rpcRunning {
+		log.Printf("RPC is already runnig do nothing...")
+		return
+	}
+
+	created := make(chan bool, 1)
+	go runRPCServer(game.RealGame, created)
+	log.Printf("RPC successfully started: %v", <-created)
+}
+
+func (game *GGame) ShareStep(step StepData) error {
+	for _, player := range game.players {
+		if player.IsHostedInThisMachine() {
+			continue
+		}
+		remoteGame := GetRemoteGameClient(player.Endpoint)
+		res := new(bool)
+		err := remoteGame.ApplyStep(&StepArgs{Data: step}, res)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func EmitMakeStep(game *RealGame, index int) {
 	log.Printf("SOCKET: make_step emitted")
-	socket.Emit("make_step")
+	(*game.socket).Emit("make_step", game.step, index)
 }
 
 func (player Player) IsHostedInThisMachine() bool {
@@ -80,6 +114,16 @@ func (game *RealGame) ConnectAsRemoteUser(args *ConnectArgs, ok *bool) error {
 	return err
 }
 
+func (game *RealGame) ApplyStep(step *StepArgs, ok *bool) error {
+
+	game.step++
+	(*game.socket).Emit("apply_step", step.Data)
+	log.Printf("SOCKET: apply_step(%v)", step)
+	go checkCurrentPlayer(game)
+	*ok = true
+	return nil
+}
+
 func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 	game.players = startArgs.Players
 	*reply = true
@@ -90,8 +134,8 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 
 func checkCurrentPlayer(game *RealGame) {
 	for i, player := range game.players {
-		if player.IsHostedInThisMachine() && game.step == i {
-			EmitMakeStep(game)
+		if player.IsHostedInThisMachine() && game.step%len(game.players) == i {
+			EmitMakeStep(game, i)
 			break
 		}
 	}
@@ -111,5 +155,6 @@ func startGame(game *RealGame) {
 			log.Printf("RPC: Failed to setup game for player %s with endpoint %s: %v", *player.Name, player.Endpoint, err)
 		}
 	}
-	EmitMakeStep(game)
+	// assuming that we are first in list of players
+	EmitMakeStep(game, 0)
 }

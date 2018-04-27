@@ -34,14 +34,37 @@ func CreateSocketServer(game *GGame) (*socketio.Server, error) {
 		})
 
 		so.On("connect_to_game", func(ip, name string) {
+			if name == "" {
+				name = "unnamed user"
+			}
 			log.Printf("SOCKET: connect_to_game(%s, %s) command recieved", ip, name)
 
-			go runRPCServer(game.RealGame)
+			created := make(chan bool, 1)
+			if !game.rpcRunning {
+				go runRPCServer(game.RealGame, created)
+				ok := <-created
+				if !ok {
+					log.Printf("SOCKET: failed to run rpc")
+					return
+				}
+			}
 			err := game.ConnectAsRemoteUser(&ConnectArgs{endpoint: ip, name: name}, res)
 			if err != nil {
 				log.Printf("SOCKET: failed to connect to game")
 			}
 			log.Printf("SOCKET: rpc call result was: %v", *res)
+		})
+
+		so.On("share_step", func(stepData StepData) {
+			log.Printf("SOCKET: share step(%v) command recieved", stepData)
+			if stepData.step != game.step {
+				log.Printf("SOCKET: recived invalid step(%v); game step is %v", stepData.step, game.step)
+			}
+			game.step++
+			err := game.ShareStep(stepData)
+			if err != nil {
+				log.Printf("SOCKET: failed to share step: %v", err)
+			}
 		})
 
 		so.On("disconnection", func() {
