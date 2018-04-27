@@ -44,8 +44,45 @@ Example:
 
 ```js
 socket.on('make_step', function(index) {
-     /* do something with ip */
+
 })
 ```
 
 Server sends to client command to make step and `index` of pawn with which player is allowed to play
+
+
+### `share_step(step)`
+
+For example:
+
+```js
+socket.emit('share_step', step)
+```
+
+Client sends to server step to share with other players.
+
+
+### `apply_step(step)`
+
+For example:
+
+```js
+socket.on('apply_step', function(step) {
+     /* do something with step */
+})
+```
+
+Server sends to client step shared by other peer to apply it on local state.
+
+
+### `show_error(msg)`
+
+For example:
+
+```js
+socket.on("show_error", function(msg) {
+    console.log(msg)
+})
+```
+
+Server sends error msg related to some previous actions or whatever.
