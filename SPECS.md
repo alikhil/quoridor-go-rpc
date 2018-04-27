@@ -10,7 +10,7 @@ Example:
 socket.emit("create_game", "piaxar")
 ```
 
-Client sends this event on "Start new game button click". 
+Client sends this event on "Start new game button click".
 
 `player_name` - user label which will be shown to other users
 
@@ -37,21 +37,29 @@ socket.emit('connect_to_game', "12.12.12.12:5001", "ivan")
 
 Client sends this request if wants to connect to existing game.
 
-### `make_step(index)`
-
+### `make_step(stepId, index)`
 
 Example:
 
 ```js
-socket.on('make_step', function(index) {
+socket.on('make_step', function(stepId, index) {
 
 })
 ```
 
-Server sends to client command to make step and `index` of pawn with which player is allowed to play
+Server sends to client command to make step. Among parameters there is `id` of `step` to be done and  `index` of pawn with which player is allowed to play.
 
 
 ### `share_step(step)`
+
+Step structure:
+
+```js
+{
+    step: 0 /* starting from zero */,
+    data: "encoded_step" /* step information */
+}
+```
 
 For example:
 
