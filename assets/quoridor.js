@@ -482,7 +482,7 @@ function move_PlaceWall(wall) {
     var or = orient == 'vert' ? 0 : 1;
     step = {
         step: gstepId,
-        data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: wall.pos.orient },
+        data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: or },
     }
     game.stage = 'moveDone';
 }
