@@ -25,6 +25,7 @@ type Game interface {
 type GameStartArgs struct {
 	Players []*Player
 	StepID  int
+	Start   bool
 }
 
 type RealGame struct {
@@ -175,10 +176,10 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 	log.Printf("RPC: recived game start: %v", startArgs)
 	go checkCurrentPlayer(game)
 	go startHealchecker(game)
-	if !game.started {
+	if !startArgs.Start {
 		log.Printf("SOCKET: emitting on create")
 		(*game.socket).Emit("on_create", len(startArgs.Players))
-		game.started = true
+		// game.started = true
 	}
 	return nil
 }
@@ -202,7 +203,7 @@ func startGame(game *RealGame) {
 		}
 		ok := new(bool)
 		remoteGame := getRemoteGame(player.Endpoint, game)
-		err := remoteGame.SetupGame(&GameStartArgs{Players: game.players}, ok)
+		err := remoteGame.SetupGame(&GameStartArgs{Players: game.players, Start: true}, ok)
 
 		if err != nil {
 			// TODO: and what to do with such player?
@@ -310,7 +311,7 @@ func startHealchecker(game *RealGame) {
 				for _, player := range newPlayers {
 					remoteGame := getRemoteGame(player.Endpoint, game)
 					ok := new(bool)
-					err := remoteGame.SetupGame(&GameStartArgs{Players: newPlayers, StepID: newStepID}, ok)
+					err := remoteGame.SetupGame(&GameStartArgs{Players: newPlayers, StepID: newStepID, Start: false}, ok)
 					if err != nil {
 						log.Printf("HEALTH: failed to setup game for player (%v)", player)
 						if setupSucceeded {
