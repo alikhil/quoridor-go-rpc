@@ -656,7 +656,7 @@ function showError(s){
 
 function applyStep(d){
     console.log(d);
-    var s = d.data;
+    var s = d.Data;
     if (s.type == 2){
         pawns[s.turn].moveTo({col:s.col, row:s.row});
     } else {
