@@ -479,10 +479,10 @@ function move_PlaceWall(wall) {
     placeElementWall(wall.pos);
     hideHighlighted();
     walls_left[turnNumber] -= 1;
-    var or = orient == 'vert'? 0:1;
+    var or = orient == 'vert' ? 0 : 1;
     step = {
         step: gstepId,
-        data: { type:1, row:wall.pos.row, col:wall.pos.col, orient:wall.pos.orient},
+        data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: wall.pos.orient },
     }
     game.stage = 'moveDone';
 }
@@ -492,7 +492,7 @@ function move_MovePawn(cell) {
     pawns[turnNumber].moveTo(cell);
     step = {
         step: gstepId,
-        data: { type:2, turn:turnNumber, row:cell.pos.row, col:cell.pos.col }
+        data: { type: 2, turn: turnNumber, row: cell.pos.row, col: cell.pos.col }
     }
     game.stage = 'moveDone';
 }
@@ -635,14 +635,14 @@ class Client {
 
 socket = io();
 
-function subscribe(){
+function subscribe() {
     socket.on('show_endpoint', console.log);
     socket.on('make_step', makeStep);
     socket.on('apply_step', applyStep);
     socket.on('show_error', showError);
 }
 
-function makeStep(stepId, index){
+function makeStep(stepId, index) {
     console.log('in make step');
     game.s = 'move';
     gstepId = stepId;
@@ -650,18 +650,18 @@ function makeStep(stepId, index){
     showPossibleMoves();
 }
 
-function showError(s){
+function showError(s) {
     console.log(s);
 }
 
-function applyStep(d){
+function applyStep(d) {
     console.log(d);
     var s = d.Data;
-    if (s.type == 2){
-        pawns[s.turn].moveTo({col:s.col, row:s.row});
+    if (s.type == 2) {
+        pawns[s.turn].moveTo(grid[s.col][s.row]);
     } else {
         targ_wall = null;
-        if (s.orient==0){
+        if (s.orient == 0) {
             targ_wall = wallsVert[s.col][s.row];
         } else {
             targ_wall = wallsHor[s.col][s.row];
@@ -684,12 +684,19 @@ function createNewGame(form) {
 
     socket.emit("create_game", "mu nem", total_players);
     subscribe();
-    
+
     var client = new Client();
     document.getElementById("menu").style.display = "none";
 }
 
 function connectToGame(form) {
-    alert('connect to the game');
+    console.log(document.getElementById('serv_ad').value);
+    socket.emit('connect_to_game',
+        document.getElementById('serv_ad').value,
+        document.getElementById('name_con').value);
+        
+    subscribe();
+    var client = new Client();
+    document.getElementById("menu").style.display = "none";
 }
 
