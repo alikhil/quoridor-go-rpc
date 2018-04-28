@@ -646,7 +646,8 @@ function onGameCreate(n){
     console.log("in on create");
     total_players = n;
     var client = new Client();
-    document.getElementById("menu").style.display = "none";
+    // document.getElementById("menu").style.display = "none";
+    document.getElementById("testillo").style.display = "none";
 }
 
 function makeStep(stepId, index) {
@@ -702,8 +703,12 @@ function connectToGame(form) {
     socket.emit('connect_to_game',
         document.getElementById('serv_ad').value,
         document.getElementById('name_con').value);
-        
+    document.getElementById("menu").style.display = "none";
+    textnode = document.createTextNode("Wating for connection");
+    var list = document.getElementById("testillo");    // Get the <ul> element to insert a new node
+    list.insertBefore(textnode, list.childNodes[0]); 
     subscribe();
+    // waiting for this 
 
 
 }
