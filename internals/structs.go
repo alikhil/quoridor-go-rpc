@@ -23,14 +23,14 @@ type Game interface {
 }
 
 type GameStartArgs struct {
-	Players []Player
+	Players []*Player
 	StepID  int
 }
 
 type RealGame struct {
 	started                bool
 	selfHosted             bool
-	players                []Player
+	players                []*Player
 	step                   int
 	socket                 *socketio.Socket
 	rpcRunning             bool
@@ -88,7 +88,7 @@ func stop(game *RealGame) {
 }
 
 func (game *GGame) StartSelfhostedGame() {
-	game.players = []Player{}
+	game.players = []*Player{}
 	game.selfHosted = true
 	if game.rpcRunning {
 		log.Printf("RPC is already runnig do nothing...")
@@ -116,7 +116,7 @@ func (game *GGame) ShareStep(step StepData) error {
 }
 
 func EmitMakeStep(game *RealGame, index int) {
-	log.Printf("SOCKET: make_step emitted")
+	log.Printf("SOCKET: make_step(%v, %v) emitted", game.step, index)
 	(*game.socket).Emit("make_step", game.step, index)
 }
 
@@ -131,11 +131,11 @@ func (game *RealGame) AddUser(newUser *Player, ok *bool) error {
 	}
 
 	for _, user := range game.players {
-		if user == *newUser {
+		if *user == *newUser {
 			return fmt.Errorf("Game: trying to add existing user(%v) to the game", newUser)
 		}
 	}
-	game.players = append(game.players, *newUser)
+	game.players = append(game.players, newUser)
 	log.Printf("new user with name %s was added. now there is %v users", *newUser.Name, len(game.players))
 	*ok = true
 	if len(game.players) == game.numberOfPlayers {
@@ -185,7 +185,9 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 
 func checkCurrentPlayer(game *RealGame) {
 	for i, player := range game.players {
+		log.Printf("DEBUG: player %v", player)
 		if player.IsHostedInThisMachine() && game.step%len(game.players) == i {
+
 			EmitMakeStep(game, player.PawnID)
 			break
 		}
@@ -230,7 +232,7 @@ func startHealchecker(game *RealGame) {
 		var statuses = make([]bool, playersCnt)
 		var thereIsFailed = false
 		var alivePlayersCnt = 1
-		var newPlayers []Player
+		var newPlayers []*Player
 
 		curPlayerI := 0
 
