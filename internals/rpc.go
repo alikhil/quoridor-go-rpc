@@ -51,7 +51,7 @@ func runRPCServer(game *RealGame, created chan<- bool) {
 
 	for game.rpcRunning {
 		l, e := net.Listen("tcp", port)
-		game.listener = &l
+		game.rpcListener = &l
 		//fmt.Println(l,e)
 		if e != nil {
 			log.Fatal("RPC: there was an error in listening for http connection on port "+port, e)

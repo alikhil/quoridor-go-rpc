@@ -39,7 +39,7 @@ type RealGame struct {
 	ticker                 *time.Ticker
 	numberOfPlayers        int
 	healthcheckerIsRunning bool
-	listener               *net.Listener
+	rpcListener            *net.Listener
 }
 
 type GGame struct {
@@ -84,7 +84,7 @@ func isConnected(game Game) bool {
 func stop(game *RealGame) {
 	game.ticker.Stop()
 	game.rpcRunning = false
-	(*game.listener).Close()
+	(*game.rpcListener).Close()
 }
 
 func (game *GGame) StartSelfhostedGame() {
@@ -175,6 +175,10 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 	log.Printf("RPC: recived game start: %v", startArgs)
 	go checkCurrentPlayer(game)
 	go startHealchecker(game)
+	if !game.started {
+		(*game.socket).Emit("on_create", len(startArgs.Players))
+		game.started = true
+	}
 	return nil
 }
 
