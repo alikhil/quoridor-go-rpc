@@ -505,7 +505,12 @@ function move_MovePawn(cell) {
 
 
 function winner(id) {
-    alert("" + id + "'th player wins");
+    names.forEach(n =>{
+        if (n.PawnID == id){
+            alert(n.Name + " wins!");
+        }
+    })
+
     location.reload();
 }
 
@@ -531,6 +536,7 @@ var total_players = 0;
 var game = 'stop';
 var gstepId = 0;
 var step = {};
+var names = [];
 
 //=================================Start=============================================================================
 class Game {
@@ -638,7 +644,12 @@ function subscribe() {
     socket.on('make_step', makeStep);
     socket.on('apply_step', applyStep);
     socket.on('show_error', showError);
-    socket.on('on_create', onGameCreate)
+    socket.on('on_create', onGameCreate);
+    socket.on('share_players', getPlayersNames);
+}
+
+function getPlayersNames(arr){
+    names = arr;
 }
 
 function showEndpoint(endpoint){
@@ -699,7 +710,7 @@ function createNewGame(form) {
         total_players = 4;
     }
 
-    socket.emit("create_game", "mu nem", total_players);
+    socket.emit("create_game", document.getElementById('name_cr').value, total_players);
     subscribe();
 
     var client = new Client();
