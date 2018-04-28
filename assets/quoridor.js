@@ -479,9 +479,10 @@ function move_PlaceWall(wall) {
     placeElementWall(wall.pos);
     hideHighlighted();
     walls_left[turnNumber] -= 1;
+    var or = orient == 'vert'? 0:1;
     step = {
         step: gstepId,
-        data: { type:'w', row:wall.pos.row, col:wall.pos.col, orient:wall.pos.orient },
+        data: { type:1, row:wall.pos.row, col:wall.pos.col, orient:wall.pos.orient},
     }
     game.stage = 'moveDone';
 }
@@ -491,7 +492,7 @@ function move_MovePawn(cell) {
     pawns[turnNumber].moveTo(cell);
     step = {
         step: gstepId,
-        data: { type:'p', turn:turnNumber, row:cell.pos.row, col:cell.pos.col }
+        data: { type:2, turn:turnNumber, row:cell.pos.row, col:cell.pos.col }
     }
     game.stage = 'moveDone';
 }
@@ -655,11 +656,11 @@ function showError(s){
 
 function applyStep(s){
     console.log();
-    if (s.type == 'p'){
+    if (s.type == 2){
         pawns[s.turn].moveTo({col:s.col, row:s.row});
     } else {
         targ_wall = null;
-        if (s.orient=='vert'){
+        if (s.orient==0){
             targ_wall = wallsVert[s.col][s.row];
         } else {
             targ_wall = wallsHor[s.col][s.row];
