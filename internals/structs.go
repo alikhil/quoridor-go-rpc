@@ -215,9 +215,9 @@ func startHealchecker(game *RealGame) {
 	game.ticker = time.NewTicker(time.Millisecond * 1000)
 	game.healthcheckerIsRunning = true
 	// game.ticker.
-	for t := range game.ticker.C {
+	for _ = range game.ticker.C {
 
-		log.Printf("Start healthcheck %v", t)
+		// log.Printf("Start healthcheck %v", t)
 		var playersCnt = len(game.players)
 		var statuses = make([]bool, playersCnt)
 		var thereIsFailed = false
