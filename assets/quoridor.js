@@ -484,9 +484,9 @@ function move_PlaceWall(wall) {
         step: gstepId,
         data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: or },
     }
-    // game.stage = 'moveDone';
     game = 'moveDone';
     socket.emit('share_step', step);
+    document.getElementById("walls_count").innerHTML="Walls left: " + walls_left[turnNumber];
 
 }
 
@@ -497,7 +497,6 @@ function move_MovePawn(cell) {
         step: gstepId,
         data: { type: 2, turn: turnNumber, row: cell.pos.row, col: cell.pos.col }
     }
-    // game.stage = 'moveDone';
     game = 'moveDone';
     socket.emit('share_step', step);
 
@@ -635,11 +634,15 @@ class Client {
 socket = io();
 
 function subscribe() {
-    socket.on('show_endpoint', console.log);
+    socket.on('show_endpoint', showEndpoint);
     socket.on('make_step', makeStep);
     socket.on('apply_step', applyStep);
     socket.on('show_error', showError);
     socket.on('on_create', onGameCreate)
+}
+
+function showEndpoint(endpoint){
+    document.getElementById("ip").innerHTML="Your IP: "+endpoint;
 }
 
 function onGameCreate(n){
@@ -649,6 +652,10 @@ function onGameCreate(n){
     // document.getElementById("menu").style.display = "none";
     // RABOTAYET BLYAT!!!!!!!!!!!!
     document.getElementById("testillo").style.display = "none";
+
+    document.getElementById("walls_count").innerHTML="Walls left: 10";
+
+    paragraph.appendChild(text);
 }
 
 function makeStep(stepId, index) {
@@ -696,6 +703,7 @@ function createNewGame(form) {
     subscribe();
 
     var client = new Client();
+    document.getElementById("walls_count").innerHTML="Walls left: 10";
     document.getElementById("menu").style.display = "none";
 }
 
