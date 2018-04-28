@@ -645,7 +645,6 @@ function subscribe() {
 
 function onGameCreate(n){
     console.log("in on create");
-    
     total_players = n;
     var client = new Client();
     document.getElementById("menu").style.display = "none";
@@ -653,6 +652,7 @@ function onGameCreate(n){
 
 function makeStep(stepId, index) {
     console.log('in make step');
+    console.log(index);
     game.s = 'move';
     gstepId = stepId;
     turnNumber = index;
