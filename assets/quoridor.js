@@ -56,6 +56,9 @@ class Cell extends PIXI.Graphics {
     }
 
     onClick() {
+        console.log(game);
+        console.log(game.stage);
+
         if (game.stage == 'move') {
             if (this.highlighted) {
                 move_MovePawn(this.myself);
@@ -478,7 +481,7 @@ function move_PlaceWall(wall) {
     walls_left[turnNumber] -= 1;
     step = {
         step: gstepId,
-        data: "w#"+wall.pos.row+"#"+wall.pos.col+"#"+wall.pos.orient
+        data: { type:'w', row:wall.pos.row, col:wall.pos.col, orient:wall.pos.orient },
     }
     game.stage = 'moveDone';
 }
@@ -488,10 +491,12 @@ function move_MovePawn(cell) {
     pawns[turnNumber].moveTo(cell);
     step = {
         step: gstepId,
-        data: "p#"+turnNumber+"#"+cell.pos.col+"#"+cell.pos.orient
+        data: { type:'p', turn:turnNumber, row:cell.pos.row, col:cell.pos.col }
     }
     game.stage = 'moveDone';
 }
+
+
 
 function winner(id) {
     alert("" + id + "'th player wins");
@@ -517,7 +522,7 @@ var walls_left = [];
 
 var turnNumber = 0;
 var total_players = 0;
-var game = null;
+var game = 'stop';
 var gstepId = 0;
 var step = {};
 
@@ -527,12 +532,13 @@ class Game {
         //Add the canvas that Pixi automatically created for you to the HTML document
         document.body.appendChild(app.view);
         this.s = 'stop';
-        showPossibleMoves();
+        // showPossibleMoves();
     }
     get stage() {
         return this.s;
     }
     set stage(value) {
+        console.log(value);
         this.s == value;
         if (value == 'moveDone') {
             // if (turnNumber == total_players - 1) {
@@ -636,6 +642,8 @@ function subscribe(){
 }
 
 function makeStep(stepId, index){
+    console.log('in make step');
+    game.s = 'move';
     gstepId = stepId;
     turnNumber = index;
     showPossibleMoves();
@@ -647,6 +655,20 @@ function showError(s){
 
 function applyStep(s){
     console.log();
+    if (s.type == 'p'){
+        pawns[s.turn].moveTo({col:s.col, row:s.row});
+    } else {
+        targ_wall = null;
+        if (s.orient=='vert'){
+            targ_wall = wallsVert[s.col][s.row];
+        } else {
+            targ_wall = wallsHor[s.col][s.row];
+        }
+        targ_wall.drawFinal();
+        targ_wall.placed = true;
+        placeElementWall(targ_wall.pos);
+    }
+
 }
 
 function createNewGame(form) {
@@ -660,11 +682,11 @@ function createNewGame(form) {
 
     socket.emit("create_game", "mu nem", total_players);
     subscribe();
-
     
     var client = new Client();
     document.getElementById("menu").style.display = "none";
 }
+
 function connectToGame(form) {
     alert('connect to the game');
 }
