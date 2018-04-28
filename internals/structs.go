@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/googollee/go-socket.io"
 	"log"
+	"net"
 	"time"
 	// "log"
 )
@@ -38,6 +39,7 @@ type RealGame struct {
 	ticker                 *time.Ticker
 	numberOfPlayers        int
 	healthcheckerIsRunning bool
+	listener               *net.Listener
 }
 
 type GGame struct {
@@ -82,6 +84,7 @@ func isConnected(game Game) bool {
 func stop(game *RealGame) {
 	game.ticker.Stop()
 	game.rpcRunning = false
+	(*game.listener).Close()
 }
 
 func (game *GGame) StartSelfhostedGame() {
