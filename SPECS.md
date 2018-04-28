@@ -94,3 +94,23 @@ socket.on("show_error", function(msg) {
 ```
 
 Server sends error msg related to some previous actions or whatever.
+
+
+### `share_players(players)`
+
+```js
+socket.on("share_players", function(players) {
+
+})
+
+```
+
+Share player information after game started
+```js
+player = {
+    Name: "string",
+    PawnID: "number",
+    Endpoint: "string"
+}
+
+```

@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"time"
 )
 
 type RemoteGame struct {
@@ -12,11 +13,26 @@ type RemoteGame struct {
 }
 
 func GetRemoteGameClient(serverAddress string) Game {
-	client, err := rpc.DialHTTP("tcp", serverAddress) // WARN: address should include port
-	if err != nil {
-		log.Fatal("dialing:", err)
+
+	c := make(chan error, 1)
+	var client *rpc.Client
+	var err error
+	go func() {
+		client, err = rpc.DialHTTP("tcp", serverAddress)
+		c <- err
+	}()
+
+	select {
+	case err := <-c:
+		if err != nil {
+			log.Printf("RPC: cannot connect to player - ", err)
+			return nil
+		}
+		return &RemoteGame{client}
+	case <-time.After(time.Second * 3):
+		return nil
 	}
-	return &RemoteGame{client}
+
 }
 
 func (rgame *RemoteGame) ApplyStep(step *StepArgs, ok *bool) error {
@@ -24,8 +40,7 @@ func (rgame *RemoteGame) ApplyStep(step *StepArgs, ok *bool) error {
 }
 
 func (rgame *RemoteGame) AddUser(user *Player, ok *bool) error {
-	err := rgame.client.Call("RemoteGame.AddUser", user, ok)
-	return err
+	return rgame.client.Call("RemoteGame.AddUser", user, ok)
 }
 
 func (rgame *RemoteGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {

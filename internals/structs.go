@@ -75,6 +75,9 @@ func getRemoteGame(endpoint string, game *RealGame) Game {
 }
 
 func isConnected(game Game) bool {
+	if game == nil {
+		return false
+	}
 	a := new(int)
 	b := new(int)
 	*a = 12
@@ -152,7 +155,7 @@ func (game *RealGame) Ping(value, reply *int) error {
 
 func (game *RealGame) ConnectAsRemoteUser(args *ConnectArgs, ok *bool) error {
 	remoteGame := getRemoteGame(args.endpoint, game)
-	err := remoteGame.AddUser(&Player{Endpoint: GetIPAddress() + GetRPCPort(), Name: &args.name}, ok)
+	err := remoteGame.AddUser(&Player{Endpoint: GetEndpoint(), Name: &args.name}, ok)
 	if err != nil {
 		log.Printf("failed to connect as user: %v", err)
 	}
@@ -179,6 +182,7 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 	if startArgs.Start {
 		log.Printf("SOCKET: emitting on create")
 		(*game.socket).Emit("on_create", len(startArgs.Players))
+		(*game.socket).Emit("share_players", startArgs.Players)
 		// game.started = true
 	}
 	return nil
@@ -203,6 +207,10 @@ func startGame(game *RealGame) {
 		}
 		ok := new(bool)
 		remoteGame := getRemoteGame(player.Endpoint, game)
+		if remoteGame == nil {
+			log.Printf("RPC: cannot connect to player (%v); client is nill")
+			continue
+		}
 		err := remoteGame.SetupGame(&GameStartArgs{Players: game.players, Start: true}, ok)
 
 		if err != nil {
@@ -212,6 +220,7 @@ func startGame(game *RealGame) {
 	}
 	// assuming that we are first in list of players
 	EmitMakeStep(game, 0)
+	(*game.socket).Emit("share_players", game.players)
 	go startHealchecker(game)
 }
 
