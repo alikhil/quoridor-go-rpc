@@ -185,7 +185,6 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 
 func checkCurrentPlayer(game *RealGame) {
 	for i, player := range game.players {
-		log.Printf("DEBUG: player %v", player)
 		if player.IsHostedInThisMachine() && game.step%len(game.players) == i {
 
 			EmitMakeStep(game, player.PawnID)

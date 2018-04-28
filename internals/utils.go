@@ -2,29 +2,22 @@ package internals
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 )
 
 func GetIPAddress() string {
 
-	netInterfaceAddresses, err := net.InterfaceAddrs()
+	conn, err := net.Dial("udp", "8.8.8.8:80")
 
+	defer conn.Close()
 	if err != nil {
+		log.Printf("UTILS: failed to get ip addrres")
 		return ""
 	}
-
-	for _, netInterfaceAddress := range netInterfaceAddresses {
-
-		networkIP, ok := netInterfaceAddress.(*net.IPNet)
-
-		if ok && !networkIP.IP.IsLoopback() && networkIP.IP.To4() != nil {
-
-			ip := networkIP.IP.String()
-			return ip
-		}
-	}
-	return ""
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP.String()
 }
 
 func GetRPCPort() string {
