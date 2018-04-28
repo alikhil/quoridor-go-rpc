@@ -51,7 +51,7 @@ type ConnectArgs struct {
 
 type StepData struct {
 	Step int
-	Data string
+	Data map[string]int
 }
 
 type StepArgs struct {
