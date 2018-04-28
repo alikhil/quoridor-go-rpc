@@ -67,6 +67,6 @@ func runRPCServer(game *RealGame, created chan<- bool) {
 
 		log.Println("RPC: Serving new connection.")
 	}
-
+	log.Printf("RPC: rpc server stopped")
 	game.rpcStopped = true
 }
