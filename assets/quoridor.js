@@ -485,7 +485,9 @@ function move_PlaceWall(wall) {
         data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: or },
     }
     // game.stage = 'moveDone';
+    game = 'moveDone';
     socket.emit('share_step', step);
+
 }
 
 function move_MovePawn(cell) {
@@ -496,7 +498,9 @@ function move_MovePawn(cell) {
         data: { type: 2, turn: turnNumber, row: cell.pos.row, col: cell.pos.col }
     }
     // game.stage = 'moveDone';
+    game = 'moveDone';
     socket.emit('share_step', step);
+
 }
 
 
