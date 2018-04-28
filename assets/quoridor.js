@@ -654,8 +654,9 @@ function showError(s){
     console.log(s);
 }
 
-function applyStep(s){
-    console.log();
+function applyStep(d){
+    console.log(d);
+    var s = d.data;
     if (s.type == 2){
         pawns[s.turn].moveTo({col:s.col, row:s.row});
     } else {
