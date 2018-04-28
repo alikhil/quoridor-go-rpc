@@ -57,9 +57,9 @@ class Cell extends PIXI.Graphics {
 
     onClick() {
         console.log(game);
-        console.log(game.stage);
+        console.log(game);
 
-        if (game.stage == 'move') {
+        if (game == 'move') {
             if (this.highlighted) {
                 move_MovePawn(this.myself);
             } else {
@@ -128,7 +128,7 @@ class Pawn extends PIXI.Graphics {
 
         if ((this.pos.col == this.taret_column) || (this.pos.row == this.target_row)) {
             winner(this.id);
-            game.stage = 'end';
+            game = 'end';
         }
 
         this.updCoord();
@@ -189,7 +189,7 @@ class Wall extends PIXI.Graphics {
     }
 
     onClick() {
-        if (game.stage == 'move') {
+        if (game== 'move') {
             if (walls_left[turnNumber] > 0) {
                 if (isWallValid(this.pos) && !this.placed) {
                     this.drawFinal();
@@ -484,7 +484,8 @@ function move_PlaceWall(wall) {
         step: gstepId,
         data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: or },
     }
-    game.stage = 'moveDone';
+    // game.stage = 'moveDone';
+    socket.emit('share_step', step);
 }
 
 function move_MovePawn(cell) {
@@ -494,7 +495,8 @@ function move_MovePawn(cell) {
         step: gstepId,
         data: { type: 2, turn: turnNumber, row: cell.pos.row, col: cell.pos.col }
     }
-    game.stage = 'moveDone';
+    // game.stage = 'moveDone';
+    socket.emit('share_step', step);
 }
 
 
@@ -531,7 +533,7 @@ var step = {};
 class Game {
     constructor() {
         //Add the canvas that Pixi automatically created for you to the HTML document
-        document.body.appendChild(app.view);
+        // document.body.appendChild(app.view);
         this.s = 'stop';
         // showPossibleMoves();
     }
@@ -542,12 +544,6 @@ class Game {
         console.log(value);
         this.s == value;
         if (value == 'moveDone') {
-            // if (turnNumber == total_players - 1) {
-            //     turnNumber = 0;
-            // } else {
-            //     turnNumber += 1;
-            // }
-            // showPossibleMoves();
             socket.emit('share_step', step);
         } else if (value == 'end') {
             alert('Game ended');
@@ -560,7 +556,8 @@ class Client {
         this.players_n = total_players;
         this.initBoard();
         this.initPawns();
-        game = new Game();
+        // game = new Game();
+        document.body.appendChild(app.view);
     }
 
     initBoard() {
@@ -595,8 +592,6 @@ class Client {
             for (var j = 0; j < 8; j++) {
                 var x = i * (style.cellWidth + style.cellGap);
                 var y = j * (style.cellWidth + style.cellGap) + style.cellGap;
-
-
                 wallsVert[i - 1][j] = new Wall(x, y, style.cellGap, style.cellWidth * 2 + style.cellGap, { col: i - 1, row: j, orient: 'vert' });
             }
         }
@@ -653,7 +648,7 @@ function onGameCreate(n){
 function makeStep(stepId, index) {
     console.log('in make step');
     console.log(index);
-    game.s = 'move';
+    game = 'move';
     gstepId = stepId;
     turnNumber = index;
     showPossibleMoves();
