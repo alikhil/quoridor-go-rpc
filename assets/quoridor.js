@@ -479,7 +479,7 @@ function move_PlaceWall(wall) {
     placeElementWall(wall.pos);
     hideHighlighted();
     walls_left[turnNumber] -= 1;
-    var or = orient == 'vert' ? 0 : 1;
+    var or = wall.pos.orient == 'vert' ? 0 : 1;
     step = {
         step: gstepId,
         data: { type: 1, row: wall.pos.row, col: wall.pos.col, orient: or },
