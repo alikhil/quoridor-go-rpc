@@ -476,12 +476,20 @@ function move_PlaceWall(wall) {
     placeElementWall(wall.pos);
     hideHighlighted();
     walls_left[turnNumber] -= 1;
+    step = {
+        step: gstepId,
+        data: "w#"+wall.pos.row+"#"+wall.pos.col+"#"+wall.pos.orient
+    }
     game.stage = 'moveDone';
 }
 
 function move_MovePawn(cell) {
     hideHighlighted();
     pawns[turnNumber].moveTo(cell);
+    step = {
+        step: gstepId,
+        data: "p#"+turnNumber+"#"+cell.pos.col+"#"+cell.pos.orient
+    }
     game.stage = 'moveDone';
 }
 
@@ -510,14 +518,15 @@ var walls_left = [];
 var turnNumber = 0;
 var total_players = 0;
 var game = null;
-
+var gstepId = 0;
+var step = {};
 
 //=================================Start=============================================================================
 class Game {
     constructor() {
         //Add the canvas that Pixi automatically created for you to the HTML document
         document.body.appendChild(app.view);
-        this.s = 'move';
+        this.s = 'stop';
         showPossibleMoves();
     }
     get stage() {
@@ -526,12 +535,13 @@ class Game {
     set stage(value) {
         this.s == value;
         if (value == 'moveDone') {
-            if (turnNumber == total_players - 1) {
-                turnNumber = 0;
-            } else {
-                turnNumber += 1;
-            }
-            showPossibleMoves();
+            // if (turnNumber == total_players - 1) {
+            //     turnNumber = 0;
+            // } else {
+            //     turnNumber += 1;
+            // }
+            // showPossibleMoves();
+            socket.emit('share_step', step);
         } else if (value == 'end') {
             alert('Game ended');
         }
@@ -539,8 +549,7 @@ class Game {
 }
 
 class Client {
-    constructor(pawn_id) {
-        this.pawn_id = pawn_id;
+    constructor() {
         this.players_n = total_players;
         this.initBoard();
         this.initPawns();
@@ -617,9 +626,30 @@ class Client {
     }
 }
 
+socket = io();
+
+function subscribe(){
+    socket.on('show_endpoint', showEndpoint);
+    socket.on('make_step', makeStep);
+    socket.on('apply_step', applyStep);
+    socket.on('show_error', showError);
+}
+
+function makeStep(stepId, index){
+    gstepId = stepId;
+    turnNumber = index;
+    showPossibleMoves();
+}
+
+function showError(s){
+    console.log(s);
+}
+
+function applyStep(s){
+    console.log();
+}
 
 function createNewGame(form) {
-
     if (document.getElementById('rb2').checked) {
         total_players = 2;
     } else if (document.getElementById('rb3').checked) {
@@ -628,9 +658,12 @@ function createNewGame(form) {
         total_players = 4;
     }
 
-    var client = new Client(0);
-    document.getElementById("menu").style.display = "none";
+    socket.emit("create_game", "mu nem", total_players);
+    subscribe();
 
+    
+    var client = new Client();
+    document.getElementById("menu").style.display = "none";
 }
 function connectToGame(form) {
     alert('connect to the game');
