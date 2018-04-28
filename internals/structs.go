@@ -176,6 +176,7 @@ func (game *RealGame) SetupGame(startArgs *GameStartArgs, reply *bool) error {
 	go checkCurrentPlayer(game)
 	go startHealchecker(game)
 	if !game.started {
+		log.Printf("SOCKET: emitting on create")
 		(*game.socket).Emit("on_create", len(startArgs.Players))
 		game.started = true
 	}
