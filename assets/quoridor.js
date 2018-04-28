@@ -640,6 +640,11 @@ function subscribe() {
     socket.on('make_step', makeStep);
     socket.on('apply_step', applyStep);
     socket.on('show_error', showError);
+    socket.on('on_create', onGameCreate)
+}
+
+function onGameCreate(n){
+    total_players = n;
 }
 
 function makeStep(stepId, index) {
@@ -647,7 +652,7 @@ function makeStep(stepId, index) {
     game.s = 'move';
     gstepId = stepId;
     turnNumber = index;
-    showPossibleMoves();
+    showPossibleMoves();s
 }
 
 function showError(s) {
@@ -696,6 +701,7 @@ function connectToGame(form) {
         document.getElementById('name_con').value);
         
     subscribe();
+
     var client = new Client();
     document.getElementById("menu").style.display = "none";
 }
