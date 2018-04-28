@@ -708,6 +708,16 @@ function createNewGame(form) {
         total_players = 3;
     } else if (document.getElementById('rb4').checked) {
         total_players = 4;
+    } else {
+        alert("You didn't chose number of players");
+        location.reload();
+        return;
+
+    }
+    if (document.getElementById('name_cr').value == ''){
+        alert("Name doesn't specified");
+        location.reload();
+        return;
     }
 
     socket.emit("create_game", document.getElementById('name_cr').value, total_players);
@@ -719,6 +729,17 @@ function createNewGame(form) {
 }
 
 function connectToGame(form) {
+    if (document.getElementById('serv_ad').value == ''){
+        alert("Server address doesn't specified");
+        location.reload();
+        return;
+
+    }
+    if (document.getElementById('name_con').value == ''){
+        alert("Name doesn't specified");
+        location.reload();
+        return;
+    }
     console.log(document.getElementById('serv_ad').value);
     socket.emit('connect_to_game',
         document.getElementById('serv_ad').value,
