@@ -647,6 +647,7 @@ function onGameCreate(n){
     total_players = n;
     var client = new Client();
     // document.getElementById("menu").style.display = "none";
+    // RABOTAYET BLYAT!!!!!!!!!!!!
     document.getElementById("testillo").style.display = "none";
 }
 
