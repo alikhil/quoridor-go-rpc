@@ -652,7 +652,7 @@ function makeStep(stepId, index) {
     game.s = 'move';
     gstepId = stepId;
     turnNumber = index;
-    showPossibleMoves();s
+    showPossibleMoves();
 }
 
 function showError(s) {
