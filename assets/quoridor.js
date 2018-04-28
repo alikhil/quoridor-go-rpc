@@ -629,7 +629,7 @@ class Client {
 socket = io();
 
 function subscribe(){
-    socket.on('show_endpoint', showEndpoint);
+    socket.on('show_endpoint', console.log);
     socket.on('make_step', makeStep);
     socket.on('apply_step', applyStep);
     socket.on('show_error', showError);
