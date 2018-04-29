@@ -1,13 +1,26 @@
 # quoridor-go-rpc
 
+Distributed Quoridor game - implemented using Go and Javascript
+
+
+## Quickstart
+
+```bash
+cd ~/go/src/github
+git clone git@github.com:alikhil/quoridor-go-rpc.git alikhil/quoridor-go-rpc
+
+go get ./...
+
+cd cmd
+go run main.go
+```
+
 
 ## Components
 
 * Frontend browser app with socket connection to backend
 
 * Backend or p2p app - communicates with other peers and sends game state to Frontend
-
-* [Optional - can be implemented insidef of Backend app] Game registrator
 
 ## Resources
 

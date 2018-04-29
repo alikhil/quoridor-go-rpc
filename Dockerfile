@@ -1,11 +1,3 @@
-# FROM alpine
-
-# RUN mkdir -p /app
-# COPY ./assets /assets
-# ADD ./cmd/app /app/app
-
-# CMD ["/app/app"]
-
 FROM golang:1.9
 
 RUN mkdir -p /go/src/github.com/alikhil/quoridor-go-rpc
